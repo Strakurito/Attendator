@@ -2,7 +2,6 @@ from PyQt5 import (QtWidgets, QtGui, QtCore)
 from objects import Pracik
 import pickle
 import sys
-#vdsvsd
 
 class Window(QtWidgets.QMainWindow):
 
