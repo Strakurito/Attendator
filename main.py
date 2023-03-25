@@ -14,8 +14,7 @@ class Window(QtWidgets.QMainWindow):
         self.PIKH = "Resources\Ps.pkl"
         self.unpickle_data()
         self.init()
-    def hovno(self):
-        return
+
     def init(self):
         main = QtWidgets.QWidget()
         self.setMinimumSize(1600, 1300)
