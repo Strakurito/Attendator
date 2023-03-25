@@ -4,7 +4,7 @@ import pickle
 import sys
 
 class Window(QtWidgets.QMainWindow):
-
+#sdffsdb
     def __init__(self, **kwargs):
         super(Window, self).__init__(**kwargs)
         self.hesla = {}
