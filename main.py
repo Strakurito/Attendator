@@ -2,7 +2,7 @@ from PyQt5 import (QtWidgets, QtGui, QtCore)
 from objects import Pracik
 import pickle
 import sys
-
+#AAAAAAA
 class Window(QtWidgets.QMainWindow):
 #sdffsdb
     def __init__(self, **kwargs):
