@@ -206,7 +206,7 @@ class BuildWindow(QtWidgets.QWidget):
         self.title.pressed.connect(lambda: self.change_build())
         self.title.setStyleSheet(
             "color: white; font-family: Montserrat SemiBold; font-size: 40px; text-decoration: underline; background: transparent; border: transparent")
-        self.stavTab = QtWidgets.QTableWidget(len(self.pracici), len(self.pracici[0].dochazky[stavba].dny) + 1)
+        self.stavTab = QtWidgets.QTableWidget(len(self.pracici), len(self.pracici[0].dochazky[stavba].dny) + 2)
         self.stavTab.verticalHeader().hide()
         self.stavTab.horizontalHeader().sectionPressed.disconnect()
 
@@ -246,11 +246,18 @@ class BuildWindow(QtWidgets.QWidget):
         self.stavTab.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem("Jméno"))
         for i in range(len(self.pracici[0].dochazky[stavba].dny)):
             self.stavTab.setHorizontalHeaderItem(i + 1, QtWidgets.QTableWidgetItem(str(i + 1)))
+        self.stavTab.setHorizontalHeaderItem(len(self.pracici[0].dochazky[stavba].dny) + 1,
+                                             QtWidgets.QTableWidgetItem("Celkem"))
 
 
         for pracik in self.pracici:
             self.stavTab.setItem(self.pracici.index(pracik), 0, QtWidgets.QTableWidgetItem(pracik.jmeno))
             self.stavTab.setItemDelegate(ReadOnlyDelegate(self))
+            self.stavTab.setItem(self.pracici.index(pracik), len(self.pracici[0].dochazky[stavba].dny) + 1,
+                                 QtWidgets.QTableWidgetItem(str(sum((pracik.dochazky[self.curStavba].dny)))))
+
+
+
 
 
             #přidat barvičky
@@ -258,7 +265,6 @@ class BuildWindow(QtWidgets.QWidget):
                 self.stavTab.setItem(self.pracici.index(pracik),
                                      i + 1, QtWidgets.QTableWidgetItem(str(pracik.dochazky[self.curStavba].dny[i])))
                 if i in pracik.dochazky[self.curStavba].vikendy:
-                    print("cock")
                     self.stavTab.item(self.pracici.index(pracik), i + 1).setBackground(QtGui.QColor(200,65,65))
 
     def load_stavba(self, stavba):
@@ -272,13 +278,6 @@ class BuildWindow(QtWidgets.QWidget):
     def change_build(self):
         self.change_win = ChangeWindow(self.main,self.curStavba)
         self.change_win.show()
-
-    #def findvikend(self):
-        #mesic = datetime.today().month()
-        #if weekno < 5:
-         #   print("Weekday")
-        #else:  # 5 Sat, 6 Sun
-         #   print("Weekend")
 
 
 
