@@ -27,5 +27,10 @@ class Dochazka:
         self.stavba = stavba
         pocetDni = calendar.monthrange(self.rok,self.mesic)
         self.dny = []
+        self.vikendy = []
         for den in range(pocetDni[1]):
             self.dny.append(0)
+            if calendar.weekday(rok, mesic, den + 1) == 0:
+                    self.vikendy.append(den)
+            elif calendar.weekday(rok, mesic, den + 1) == 6:
+                    self.vikendy.append(den)

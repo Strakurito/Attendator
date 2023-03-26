@@ -1,5 +1,6 @@
 from PyQt5 import (QtWidgets, QtGui, QtCore)
 from objects import Pracik
+from datetime import datetime
 import pickle
 import sys
 
@@ -13,6 +14,8 @@ class Window(QtWidgets.QMainWindow):
         self.PIKS = "Resources\Stavby.pkl"
         self.PIKH = "Resources\Ps.pkl"
         self.unpickle_data()
+
+
         self.init()
 
     def init(self):
@@ -55,10 +58,6 @@ class Window(QtWidgets.QMainWindow):
 
                                         QTableWidget::item:focus { 
                                         background-color:transparent; color:black;
-                                        }
-                                        
-                                        QTableWidget::item { 
-                                        border: 1px solid grey;
                                         }
                                         """)
         self.pracovnici_tabulka_load()
@@ -248,14 +247,19 @@ class BuildWindow(QtWidgets.QWidget):
         for i in range(len(self.pracici[0].dochazky[stavba].dny)):
             self.stavTab.setHorizontalHeaderItem(i + 1, QtWidgets.QTableWidgetItem(str(i + 1)))
 
+
         for pracik in self.pracici:
             self.stavTab.setItem(self.pracici.index(pracik), 0, QtWidgets.QTableWidgetItem(pracik.jmeno))
             self.stavTab.setItemDelegate(ReadOnlyDelegate(self))
+
 
             #přidat barvičky
             for i in range(len(self.pracici[0].dochazky[self.curStavba].dny)):
                 self.stavTab.setItem(self.pracici.index(pracik),
                                      i + 1, QtWidgets.QTableWidgetItem(str(pracik.dochazky[self.curStavba].dny[i])))
+                if i in pracik.dochazky[self.curStavba].vikendy:
+                    print("cock")
+                    self.stavTab.item(self.pracici.index(pracik), i + 1).setBackground(QtGui.QColor(200,65,65))
 
     def load_stavba(self, stavba):
         if stavba == "Pracovníci":
@@ -268,6 +272,14 @@ class BuildWindow(QtWidgets.QWidget):
     def change_build(self):
         self.change_win = ChangeWindow(self.main,self.curStavba)
         self.change_win.show()
+
+    #def findvikend(self):
+        #mesic = datetime.today().month()
+        #if weekno < 5:
+         #   print("Weekday")
+        #else:  # 5 Sat, 6 Sun
+         #   print("Weekend")
+
 
 
 
