@@ -13,7 +13,9 @@ class Window(QtWidgets.QMainWindow):
         self.PIKP = "Resources\Pracovnici.pkl"
         self.PIKS = "Resources\Stavby.pkl"
         self.PIKH = "Resources\Ps.pkl"
+        self.PIKM = "Resources\Lm.pkl"
         self.unpickle_data()
+        self.checkMonth()
 
 
         self.init()
@@ -81,6 +83,7 @@ class Window(QtWidgets.QMainWindow):
         self.menu = QtWidgets.QListWidget()
         self.menu.setFixedWidth(250)
         self.menu.addItem("Pracovníci")
+        self.menu.addItem("Srážky ze mzdy")
         for stavba in self.stavby:
             self.menu.addItem(stavba)
         self.menu.addItem("Přidat")
@@ -132,6 +135,8 @@ class Window(QtWidgets.QMainWindow):
     def load_stavba(self, stavba):
         if stavba == "Pracovníci":
             return
+        elif stavba == "Srážky ze mzdy":
+            self.setCentralWidget(SrazWindow(self, self.pracici, self.stavby))
         elif stavba == "Přidat":
             self.add_build = AddWindow(self)
             self.add_build.show()
@@ -177,6 +182,8 @@ class Window(QtWidgets.QMainWindow):
             self.hesla = pickle.load(a)
         with open(self.PIKS, "rb") as a:
             self.stavby = pickle.load(a)
+        with open(self.PIKM, "rb") as a:
+            self.lastMonth = pickle.load(a)
 
     def pickle_data(self):
         with open(self.PIKP, "wb") as a:
@@ -185,6 +192,15 @@ class Window(QtWidgets.QMainWindow):
             pickle.dump(self.hesla, a, protocol=4)
         with open(self.PIKS, "wb") as a:
             pickle.dump(self.stavby, a, protocol=4)
+        with open(self.PIKM, "wb") as a:
+            pickle.dump(self.lastMonth, a, protocol=4)
+
+    def checkMonth(self):
+        if self.lastMonth != datetime.now().month:
+            self.archive()
+
+    def archive(self):
+        pass
 
 
 
@@ -222,6 +238,7 @@ class BuildWindow(QtWidgets.QWidget):
         self.menu = QtWidgets.QListWidget()
         self.menu.setFixedWidth(250)
         self.menu.addItem("Pracovníci")
+        self.menu.addItem("Srážky ze mzdy")
         for stavba in self.stavby:
             self.menu.addItem(stavba)
         self.menu.addItem("Přidat")
@@ -256,20 +273,18 @@ class BuildWindow(QtWidgets.QWidget):
             self.stavTab.setItem(self.pracici.index(pracik), len(self.pracici[0].dochazky[stavba].dny) + 1,
                                  QtWidgets.QTableWidgetItem(str(sum((pracik.dochazky[self.curStavba].dny)))))
 
-
-
-
-
-            #přidat barvičky
             for i in range(len(self.pracici[0].dochazky[self.curStavba].dny)):
                 self.stavTab.setItem(self.pracici.index(pracik),
                                      i + 1, QtWidgets.QTableWidgetItem(str(pracik.dochazky[self.curStavba].dny[i])))
                 if i in pracik.dochazky[self.curStavba].vikendy:
                     self.stavTab.item(self.pracici.index(pracik), i + 1).setBackground(QtGui.QColor(200,65,65))
+                    self.stavTab.item(self.pracici.index(pracik), i + 1).setForeground(QtGui.QColor("white"))
 
     def load_stavba(self, stavba):
         if stavba == "Pracovníci":
             self.main.init()
+        elif stavba == "Srážky ze mzdy":
+            self.main.setCentralWidget(SrazWindow(self.main, self.pracici, self.stavby))
         elif stavba == "Přidat":
             self.add_build = AddWindow(self.main)
             self.add_build.show()
@@ -280,6 +295,100 @@ class BuildWindow(QtWidgets.QWidget):
         self.change_win.show()
 
 
+class SrazWindow(QtWidgets.QWidget):
+
+    def __init__(self, main, pracici, stavby):
+        super().__init__()
+
+        self.main = main
+        self.stavby = stavby
+        self.pracici = pracici
+
+        self.title = QtWidgets.QLabel("Srážky ze mzdy")
+        self.title.setAlignment(QtCore.Qt.AlignCenter)
+        self.title.setStyleSheet(
+            "color: white; font-family: Montserrat SemiBold; font-size: 40px; text-decoration: underline; background: transparent; border: transparent")
+        self.srazTab = QtWidgets.QTableWidget(len(self.pracici), 5)
+        self.srazTab.verticalHeader().hide()
+        self.srazTab.horizontalHeader().sectionPressed.disconnect()
+        self.srazTab.itemChanged.connect(lambda: self.changeData(self.srazTab.currentRow(), self.srazTab.currentColumn()))
+        self.load_tabulka()
+
+        self.layout = QtWidgets.QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.menu = QtWidgets.QListWidget()
+        self.menu.setFixedWidth(250)
+        self.menu.addItem("Pracovníci")
+        self.menu.addItem("Srážky ze mzdy")
+        for stavba in self.stavby:
+            self.menu.addItem(stavba)
+        self.menu.addItem("Přidat")
+
+        self.menu.itemClicked.connect(lambda: self.load_stavba(self.menu.currentItem().text()))
+
+        tab_layout = QtWidgets.QHBoxLayout()
+        self.layout.addWidget(self.title)
+        self.layout.addSpacing(70)
+        tab_layout.addSpacing(20)
+        tab_layout.addWidget(self.menu)
+        tab_layout.addSpacing(20)
+        tab_layout.addWidget(self.srazTab)
+        tab_layout.addSpacing(20)
+        self.layout.addLayout(tab_layout)
+
+    def load_tabulka(self):
+        Hheader = self.srazTab.horizontalHeader()
+        Hheader.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        #Hheader.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+
+        self.srazTab.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem("    Jméno    "))
+        self.srazTab.setHorizontalHeaderItem(1, QtWidgets.QTableWidgetItem(" Srážka za vizum "))
+        self.srazTab.setHorizontalHeaderItem(2, QtWidgets.QTableWidgetItem(" Srážka za Covid test "))
+        self.srazTab.setHorizontalHeaderItem(3, QtWidgets.QTableWidgetItem(" Pokuta "))
+        self.srazTab.setHorizontalHeaderItem(4, QtWidgets.QTableWidgetItem(" Celkem "))
+
+        for pracik in self.pracici:
+            self.srazTab.setItem(self.pracici.index(pracik), 0, QtWidgets.QTableWidgetItem(pracik.jmeno))
+            self.srazTab.setItem(self.pracici.index(pracik), 1, QtWidgets.QTableWidgetItem(str(pracik.srazy["V"])))
+            self.srazTab.item(self.pracici.index(pracik), 1).setTextAlignment(QtCore.Qt.AlignRight)
+            self.srazTab.setItem(self.pracici.index(pracik), 2, QtWidgets.QTableWidgetItem(str(pracik.srazy["C"])))
+            self.srazTab.item(self.pracici.index(pracik), 2).setTextAlignment(QtCore.Qt.AlignRight)
+            self.srazTab.setItem(self.pracici.index(pracik), 3, QtWidgets.QTableWidgetItem(str(pracik.srazy["P"])))
+            self.srazTab.item(self.pracici.index(pracik), 3).setTextAlignment(QtCore.Qt.AlignRight)
+            self.srazTab.setItem(self.pracici.index(pracik), 4, QtWidgets.QTableWidgetItem(pracik.srazCelk()))
+            self.srazTab.item(self.pracici.index(pracik), 4).setTextAlignment(QtCore.Qt.AlignRight)
+            self.srazTab.setItemDelegateForColumn(0,ReadOnlyDelegate(self))
+            self.srazTab.setItemDelegateForColumn(4,ReadOnlyDelegate(self))
+
+    def changeData(self, curRow, curCol):
+        self.srazTab.itemChanged.disconnect()
+        pracik = self.pracici[curRow]
+        if curCol == 0:
+            pass
+        elif curCol == 1:
+            pracik.srazy["V"] = int(self.srazTab.item(curRow, curCol).text())
+        elif curCol == 2:
+            pracik.srazy["C"] = int(self.srazTab.item(curRow, curCol).text())
+        elif curCol == 3:
+            pracik.srazy["P"] = int(self.srazTab.item(curRow, curCol).text())
+        elif curCol == 4:
+            pass
+        self.load_tabulka()
+        self.srazTab.itemChanged.connect(
+            lambda: self.changeData(self.srazTab.currentRow(), self.srazTab.currentColumn()))
+        self.main.pickle_data()
+
+    def load_stavba(self, stavba):
+        if stavba == "Pracovníci":
+            self.main.init()
+        elif stavba == "Srážky ze mzdy":
+            self.main.setCentralWidget(SrazWindow(self.main, self.pracici, self.stavby))
+        elif stavba == "Přidat":
+            self.add_build = AddWindow(self.main)
+            self.add_build.show()
+        else:
+            self.main.setCentralWidget(BuildWindow(self.main, stavba, self.pracici, self.stavby))
 
 
 class AddWindow(QtWidgets.QWidget):

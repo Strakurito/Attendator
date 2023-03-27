@@ -8,6 +8,10 @@ class Pracik:
         self.premie = premie
         self.platUct = platUct
         self.dochazky = {}
+        self.srazy = {}
+        self.srazy["V"] = 0
+        self.srazy["C"] = 0
+        self.srazy["P"] = 0
         
         for stavba in stavby:
             self.novaDochazka(stavba)
@@ -17,6 +21,10 @@ class Pracik:
         mesic = datetime.now().month
         rok = datetime.now().year
         self.dochazky[stavba] = Dochazka(stavba, mesic, rok)
+
+    def srazCelk(self):
+        print(str(self.srazy["V"] + self.srazy["C"] + self.srazy["P"]))
+        return str(self.srazy["V"] + self.srazy["C"] + self.srazy["P"])
 
 
 
