@@ -57,10 +57,6 @@ class Window(QtWidgets.QMainWindow):
                                         border: 1px solid grey;
                                         text-align: center;
                                         }
-
-                                        QTableWidget::item:focus { 
-                                        background-color:transparent; color:black;
-                                        }
                                         """)
         self.pracovnici_tabulka_load()
         title = QtWidgets.QLabel("Pracovníci")
@@ -97,6 +93,7 @@ class Window(QtWidgets.QMainWindow):
         self.pracTab.setRowCount(len(self.pracici) + 1)
 
 
+
         Hheader = self.pracTab.horizontalHeader()
         Hheader.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         #Hheader.setSectionResizeMode(0,QtWidgets.QHeaderView.Stretch)
@@ -127,6 +124,8 @@ class Window(QtWidgets.QMainWindow):
         self.pracTab.setItem(len(self.pracici), 2, QtWidgets.QTableWidgetItem(""))
         self.pracTab.setItem(len(self.pracici), 7, QtWidgets.QTableWidgetItem(""))
         self.pracTab.setItem(len(self.pracici), 9, QtWidgets.QTableWidgetItem(""))
+
+        self.pracTab.item(self.pracici.index(pracik), 0).setBackground(QtGui.QColor(224, 224, 224))
 
         self.pracTab.itemDoubleClicked.connect(lambda: self.selectPracik(self.pracTab.currentRow()))
         self.pracTab.itemChanged.connect(lambda: self.changeData(self.pracTab.currentRow(), self.pracTab.currentColumn()))
@@ -269,16 +268,20 @@ class BuildWindow(QtWidgets.QWidget):
 
         for pracik in self.pracici:
             self.stavTab.setItem(self.pracici.index(pracik), 0, QtWidgets.QTableWidgetItem(pracik.jmeno))
+            self.stavTab.item(self.pracici.index(pracik), 0).setBackground(QtGui.QColor(224, 224, 224))
             self.stavTab.setItemDelegate(ReadOnlyDelegate(self))
             self.stavTab.setItem(self.pracici.index(pracik), len(self.pracici[0].dochazky[stavba].dny) + 1,
                                  QtWidgets.QTableWidgetItem(str(sum((pracik.dochazky[self.curStavba].dny)))))
+            self.stavTab.item(self.pracici.index(pracik),
+                              len(self.pracici[0].dochazky[stavba].dny) + 1).setBackground(QtGui.QColor(50, 100, 255))
+            self.stavTab.item(self.pracici.index(pracik),
+                              len(self.pracici[0].dochazky[stavba].dny) + 1).setForeground(QtGui.QColor("white"))
 
             for i in range(len(self.pracici[0].dochazky[self.curStavba].dny)):
                 self.stavTab.setItem(self.pracici.index(pracik),
                                      i + 1, QtWidgets.QTableWidgetItem(str(pracik.dochazky[self.curStavba].dny[i])))
                 if i in pracik.dochazky[self.curStavba].vikendy:
-                    self.stavTab.item(self.pracici.index(pracik), i + 1).setBackground(QtGui.QColor(200,65,65))
-                    self.stavTab.item(self.pracici.index(pracik), i + 1).setForeground(QtGui.QColor("white"))
+                    self.stavTab.item(self.pracici.index(pracik), i + 1).setBackground(QtGui.QColor(150,200,255))
 
     def load_stavba(self, stavba):
         if stavba == "Pracovníci":
@@ -309,6 +312,7 @@ class SrazWindow(QtWidgets.QWidget):
         self.title.setStyleSheet(
             "color: white; font-family: Montserrat SemiBold; font-size: 40px; text-decoration: underline; background: transparent; border: transparent")
         self.srazTab = QtWidgets.QTableWidget(len(self.pracici), 5)
+        self.srazTab.setFixedWidth(650)
         self.srazTab.verticalHeader().hide()
         self.srazTab.horizontalHeader().sectionPressed.disconnect()
         self.srazTab.itemChanged.connect(lambda: self.changeData(self.srazTab.currentRow(), self.srazTab.currentColumn()))
@@ -330,17 +334,17 @@ class SrazWindow(QtWidgets.QWidget):
         tab_layout = QtWidgets.QHBoxLayout()
         self.layout.addWidget(self.title)
         self.layout.addSpacing(70)
-        tab_layout.addSpacing(20)
+        tab_layout.addSpacing(10)
         tab_layout.addWidget(self.menu)
-        tab_layout.addSpacing(20)
+        tab_layout.addSpacing(10)
         tab_layout.addWidget(self.srazTab)
-        tab_layout.addSpacing(20)
+        tab_layout.addSpacing(490)
         self.layout.addLayout(tab_layout)
 
     def load_tabulka(self):
         Hheader = self.srazTab.horizontalHeader()
         Hheader.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-        #Hheader.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        Hheader.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
 
         self.srazTab.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem("    Jméno    "))
         self.srazTab.setHorizontalHeaderItem(1, QtWidgets.QTableWidgetItem(" Srážka za vizum "))
@@ -350,6 +354,7 @@ class SrazWindow(QtWidgets.QWidget):
 
         for pracik in self.pracici:
             self.srazTab.setItem(self.pracici.index(pracik), 0, QtWidgets.QTableWidgetItem(pracik.jmeno))
+            self.srazTab.item(self.pracici.index(pracik), 0).setBackground(QtGui.QColor(224, 224, 224))
             self.srazTab.setItem(self.pracici.index(pracik), 1, QtWidgets.QTableWidgetItem(str(pracik.srazy["V"])))
             self.srazTab.item(self.pracici.index(pracik), 1).setTextAlignment(QtCore.Qt.AlignRight)
             self.srazTab.setItem(self.pracici.index(pracik), 2, QtWidgets.QTableWidgetItem(str(pracik.srazy["C"])))
