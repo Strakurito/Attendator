@@ -80,6 +80,7 @@ class Window(QtWidgets.QMainWindow):
         self.menu.setFixedWidth(250)
         self.menu.addItem("Pracovníci")
         self.menu.addItem("Srážky ze mzdy")
+        self.menu.addItem("Pracovní oděvy")
         for stavba in self.stavby:
             self.menu.addItem(stavba)
         self.menu.addItem("Přidat")
@@ -116,16 +117,43 @@ class Window(QtWidgets.QMainWindow):
                 self.pracTab.setItemDelegateForColumn(num, ReadOnlyDelegate(self))
         for pracik in self.pracici:
             self.pracTab.setItem(self.pracici.index(pracik), 0, QtWidgets.QTableWidgetItem(pracik.jmeno))
+            self.pracTab.item(self.pracici.index(pracik), 0).setBackground(QtGui.QColor(224, 224, 224))
+
             self.pracTab.setItem(self.pracici.index(pracik), 2, QtWidgets.QTableWidgetItem(str(pracik.kchod)))
+            self.pracTab.item(self.pracici.index(pracik), 2).setTextAlignment(QtCore.Qt.AlignCenter)
+            self.pracTab.item(self.pracici.index(pracik), 2).setBackground(QtGui.QColor(224, 224, 224))
+
             self.pracTab.setItem(self.pracici.index(pracik), 7, QtWidgets.QTableWidgetItem(str(pracik.premie)))
+            self.pracTab.item(self.pracici.index(pracik), 7).setTextAlignment(QtCore.Qt.AlignCenter)
+            self.pracTab.item(self.pracici.index(pracik), 7).setBackground(QtGui.QColor(224, 224, 224))
+
             self.pracTab.setItem(self.pracici.index(pracik), 9, QtWidgets.QTableWidgetItem(str(pracik.platUct)))
+            self.pracTab.item(self.pracici.index(pracik), 9).setTextAlignment(QtCore.Qt.AlignCenter)
+            self.pracTab.item(self.pracici.index(pracik), 9).setBackground(QtGui.QColor(224, 224, 224))
+
+            self.pracTab.setItem(self.pracici.index(pracik), 6, QtWidgets.QTableWidgetItem(pracik.srazCelk()))
+            self.pracTab.item(self.pracici.index(pracik), 6).setTextAlignment(QtCore.Qt.AlignCenter)
+
+            self.pracTab.setItem(self.pracici.index(pracik), 1, QtWidgets.QTableWidgetItem(pracik.hodinyCelk()))
+            self.pracTab.item(self.pracici.index(pracik), 1).setTextAlignment(QtCore.Qt.AlignCenter)
+
+            self.pracTab.setItem(self.pracici.index(pracik), 5, QtWidgets.QTableWidgetItem(pracik.odevyCelk()))
+            self.pracTab.item(self.pracici.index(pracik), 5).setTextAlignment(QtCore.Qt.AlignCenter)
+
+            self.pracTab.setItem(self.pracici.index(pracik), 10, QtWidgets.QTableWidgetItem())
+            self.pracTab.item(self.pracici.index(pracik), 10).setTextAlignment(QtCore.Qt.AlignCenter)
+
+            self.pracTab.setItem(self.pracici.index(pracik), 3,
+                                 QtWidgets.QTableWidgetItem(str(int(pracik.hodinyCelk()) *
+                                                                int(self.pracTab.item(self.pracici.index(pracik), 2).text()))))
+            self.pracTab.item(self.pracici.index(pracik), 3).setTextAlignment(QtCore.Qt.AlignCenter)
+
 
         self.pracTab.setItem(len(self.pracici), 0, QtWidgets.QTableWidgetItem(""))
         self.pracTab.setItem(len(self.pracici), 2, QtWidgets.QTableWidgetItem(""))
         self.pracTab.setItem(len(self.pracici), 7, QtWidgets.QTableWidgetItem(""))
         self.pracTab.setItem(len(self.pracici), 9, QtWidgets.QTableWidgetItem(""))
 
-        self.pracTab.item(self.pracici.index(pracik), 0).setBackground(QtGui.QColor(224, 224, 224))
 
         self.pracTab.itemDoubleClicked.connect(lambda: self.selectPracik(self.pracTab.currentRow()))
         self.pracTab.itemChanged.connect(lambda: self.changeData(self.pracTab.currentRow(), self.pracTab.currentColumn()))
@@ -136,6 +164,8 @@ class Window(QtWidgets.QMainWindow):
             return
         elif stavba == "Srážky ze mzdy":
             self.setCentralWidget(SrazWindow(self, self.pracici, self.stavby))
+        elif stavba == "Pracovní oděvy":
+            self.setCentralWidget(OdevWindow(self, self.pracici, self.stavby))
         elif stavba == "Přidat":
             self.add_build = AddWindow(self)
             self.add_build.show()
@@ -221,7 +251,7 @@ class BuildWindow(QtWidgets.QWidget):
         self.title.pressed.connect(lambda: self.change_build())
         self.title.setStyleSheet(
             "color: white; font-family: Montserrat SemiBold; font-size: 40px; text-decoration: underline; background: transparent; border: transparent")
-        self.stavTab = QtWidgets.QTableWidget(len(self.pracici), len(self.pracici[0].dochazky[stavba].dny) + 2)
+        self.stavTab = QtWidgets.QTableWidget(len(self.pracici), len(self.pracici[0].dochazky[stavba].dny) + 3)
         self.stavTab.verticalHeader().hide()
         self.stavTab.horizontalHeader().sectionPressed.disconnect()
 
@@ -238,6 +268,7 @@ class BuildWindow(QtWidgets.QWidget):
         self.menu.setFixedWidth(250)
         self.menu.addItem("Pracovníci")
         self.menu.addItem("Srážky ze mzdy")
+        self.menu.addItem("Pracovní oděvy")
         for stavba in self.stavby:
             self.menu.addItem(stavba)
         self.menu.addItem("Přidat")
@@ -257,21 +288,28 @@ class BuildWindow(QtWidgets.QWidget):
 
         Hheader = self.stavTab.horizontalHeader()
         Hheader.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-        Hheader.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
 
         self.stavTab.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem("Jméno"))
         for i in range(len(self.pracici[0].dochazky[stavba].dny)):
             self.stavTab.setHorizontalHeaderItem(i + 1, QtWidgets.QTableWidgetItem(str(i + 1)))
         self.stavTab.setHorizontalHeaderItem(len(self.pracici[0].dochazky[stavba].dny) + 1,
                                              QtWidgets.QTableWidgetItem("Celkem"))
+        self.stavTab.setHorizontalHeaderItem(len(self.pracici[0].dochazky[stavba].dny) + 2,
+                                             QtWidgets.QTableWidgetItem("Jméno"))
 
 
         for pracik in self.pracici:
             self.stavTab.setItem(self.pracici.index(pracik), 0, QtWidgets.QTableWidgetItem(pracik.jmeno))
             self.stavTab.item(self.pracici.index(pracik), 0).setBackground(QtGui.QColor(224, 224, 224))
+            self.stavTab.setItem(self.pracici.index(pracik),
+                                 len(self.pracici[0].dochazky[stavba].dny) + 2, QtWidgets.QTableWidgetItem(pracik.jmeno))
+            self.stavTab.item(self.pracici.index(pracik),
+                              len(self.pracici[0].dochazky[stavba].dny) + 2).setBackground(QtGui.QColor(224, 224, 224))
             self.stavTab.setItemDelegate(ReadOnlyDelegate(self))
             self.stavTab.setItem(self.pracici.index(pracik), len(self.pracici[0].dochazky[stavba].dny) + 1,
                                  QtWidgets.QTableWidgetItem(str(sum((pracik.dochazky[self.curStavba].dny)))))
+            self.stavTab.item(self.pracici.index(pracik),
+                              len(self.pracici[0].dochazky[stavba].dny) + 1).setTextAlignment(QtCore.Qt.AlignCenter)
             self.stavTab.item(self.pracici.index(pracik),
                               len(self.pracici[0].dochazky[stavba].dny) + 1).setBackground(QtGui.QColor(50, 100, 255))
             self.stavTab.item(self.pracici.index(pracik),
@@ -288,6 +326,8 @@ class BuildWindow(QtWidgets.QWidget):
             self.main.init()
         elif stavba == "Srážky ze mzdy":
             self.main.setCentralWidget(SrazWindow(self.main, self.pracici, self.stavby))
+        elif stavba == "Pracovní oděvy":
+            self.main.setCentralWidget(OdevWindow(self.main, self.pracici, self.stavby))
         elif stavba == "Přidat":
             self.add_build = AddWindow(self.main)
             self.add_build.show()
@@ -312,7 +352,6 @@ class SrazWindow(QtWidgets.QWidget):
         self.title.setStyleSheet(
             "color: white; font-family: Montserrat SemiBold; font-size: 40px; text-decoration: underline; background: transparent; border: transparent")
         self.srazTab = QtWidgets.QTableWidget(len(self.pracici), 5)
-        self.srazTab.setFixedWidth(650)
         self.srazTab.verticalHeader().hide()
         self.srazTab.horizontalHeader().sectionPressed.disconnect()
         self.srazTab.itemChanged.connect(lambda: self.changeData(self.srazTab.currentRow(), self.srazTab.currentColumn()))
@@ -325,6 +364,7 @@ class SrazWindow(QtWidgets.QWidget):
         self.menu.setFixedWidth(250)
         self.menu.addItem("Pracovníci")
         self.menu.addItem("Srážky ze mzdy")
+        self.menu.addItem("Pracovní oděvy")
         for stavba in self.stavby:
             self.menu.addItem(stavba)
         self.menu.addItem("Přidat")
@@ -334,17 +374,16 @@ class SrazWindow(QtWidgets.QWidget):
         tab_layout = QtWidgets.QHBoxLayout()
         self.layout.addWidget(self.title)
         self.layout.addSpacing(70)
-        tab_layout.addSpacing(10)
+        tab_layout.addSpacing(20)
         tab_layout.addWidget(self.menu)
-        tab_layout.addSpacing(10)
+        tab_layout.addSpacing(20)
         tab_layout.addWidget(self.srazTab)
-        tab_layout.addSpacing(490)
+        tab_layout.addSpacing(20)
         self.layout.addLayout(tab_layout)
 
     def load_tabulka(self):
         Hheader = self.srazTab.horizontalHeader()
         Hheader.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-        Hheader.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
 
         self.srazTab.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem("    Jméno    "))
         self.srazTab.setHorizontalHeaderItem(1, QtWidgets.QTableWidgetItem(" Srážka za vizum "))
@@ -389,6 +428,106 @@ class SrazWindow(QtWidgets.QWidget):
             self.main.init()
         elif stavba == "Srážky ze mzdy":
             self.main.setCentralWidget(SrazWindow(self.main, self.pracici, self.stavby))
+        elif stavba == "Pracovní oděvy":
+            self.main.setCentralWidget(OdevWindow(self.main, self.pracici, self.stavby))
+        elif stavba == "Přidat":
+            self.add_build = AddWindow(self.main)
+            self.add_build.show()
+        else:
+            self.main.setCentralWidget(BuildWindow(self.main, stavba, self.pracici, self.stavby))
+
+
+class OdevWindow(QtWidgets.QWidget):
+
+    def __init__(self, main, pracici, stavby):
+        super().__init__()
+
+        self.main = main
+        self.stavby = stavby
+        self.pracici = pracici
+
+        self.title = QtWidgets.QLabel("Pracovní oděvy")
+        self.title.setAlignment(QtCore.Qt.AlignCenter)
+        self.title.setStyleSheet(
+            "color: white; font-family: Montserrat SemiBold; font-size: 40px; text-decoration: underline; background: transparent; border: transparent")
+        self.odevTab = QtWidgets.QTableWidget(len(self.pracici), 5)
+        self.odevTab.verticalHeader().hide()
+        self.odevTab.horizontalHeader().sectionPressed.disconnect()
+        self.odevTab.itemChanged.connect(lambda: self.changeData(self.odevTab.currentRow(), self.odevTab.currentColumn()))
+        self.load_tabulka()
+
+        self.layout = QtWidgets.QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.menu = QtWidgets.QListWidget()
+        self.menu.setFixedWidth(250)
+        self.menu.addItem("Pracovníci")
+        self.menu.addItem("Srážky ze mzdy")
+        self.menu.addItem("Pracovní oděvy")
+        for stavba in self.stavby:
+            self.menu.addItem(stavba)
+        self.menu.addItem("Přidat")
+
+        self.menu.itemClicked.connect(lambda: self.load_stavba(self.menu.currentItem().text()))
+
+        tab_layout = QtWidgets.QHBoxLayout()
+        self.layout.addWidget(self.title)
+        self.layout.addSpacing(70)
+        tab_layout.addSpacing(20)
+        tab_layout.addWidget(self.menu)
+        tab_layout.addSpacing(20)
+        tab_layout.addWidget(self.odevTab)
+        tab_layout.addSpacing(20)
+        self.layout.addLayout(tab_layout)
+
+    def load_tabulka(self):
+        Hheader = self.odevTab.horizontalHeader()
+        Hheader.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        self.odevTab.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem("    Jméno    "))
+        self.odevTab.setHorizontalHeaderItem(1, QtWidgets.QTableWidgetItem("      Typ      "))
+        self.odevTab.setHorizontalHeaderItem(2, QtWidgets.QTableWidgetItem(" Cena "))
+        self.odevTab.setHorizontalHeaderItem(3, QtWidgets.QTableWidgetItem(" Počet ks "))
+        self.odevTab.setHorizontalHeaderItem(4, QtWidgets.QTableWidgetItem(" Celkem "))
+
+        for pracik in self.pracici:
+            self.odevTab.setItem(self.pracici.index(pracik), 0, QtWidgets.QTableWidgetItem(pracik.jmeno))
+            self.odevTab.item(self.pracici.index(pracik), 0).setBackground(QtGui.QColor(224, 224, 224))
+            self.odevTab.setItem(self.pracici.index(pracik), 1, QtWidgets.QTableWidgetItem(str(pracik.odevy["T"])))
+            self.odevTab.item(self.pracici.index(pracik), 1).setTextAlignment(QtCore.Qt.AlignRight)
+            self.odevTab.setItem(self.pracici.index(pracik), 2, QtWidgets.QTableWidgetItem(str(pracik.odevy["C"])))
+            self.odevTab.item(self.pracici.index(pracik), 2).setTextAlignment(QtCore.Qt.AlignRight)
+            self.odevTab.setItem(self.pracici.index(pracik), 3, QtWidgets.QTableWidgetItem(str(pracik.odevy["P"])))
+            self.odevTab.item(self.pracici.index(pracik), 3).setTextAlignment(QtCore.Qt.AlignRight)
+            self.odevTab.setItem(self.pracici.index(pracik), 4, QtWidgets.QTableWidgetItem(pracik.odevyCelk()))
+            self.odevTab.item(self.pracici.index(pracik), 4).setTextAlignment(QtCore.Qt.AlignRight)
+            self.odevTab.setItemDelegateForColumn(0, ReadOnlyDelegate(self))
+            self.odevTab.setItemDelegateForColumn(4, ReadOnlyDelegate(self))
+
+    def changeData(self, curRow, curCol):
+        self.odevTab.itemChanged.disconnect()
+        pracik = self.pracici[curRow]
+        if curCol == 0:
+            pass
+        elif curCol == 1:
+            pracik.odevy["T"] = self.odevTab.item(curRow, curCol).text()
+        elif curCol == 2:
+            pracik.odevy["C"] = int(self.odevTab.item(curRow, curCol).text())
+        elif curCol == 3:
+            pracik.odevy["P"] = int(self.odevTab.item(curRow, curCol).text())
+        elif curCol == 4:
+            pass
+        self.load_tabulka()
+        self.odevTab.itemChanged.connect(
+            lambda: self.changeData(self.odevTab.currentRow(), self.odevTab.currentColumn()))
+        self.main.pickle_data()
+
+    def load_stavba(self, stavba):
+        if stavba == "Pracovníci":
+            self.main.init()
+        elif stavba == "Srážky ze mzdy":
+            self.main.setCentralWidget(SrazWindow(self.main, self.pracici, self.stavby))
+        elif stavba == "Pracovní oděvy":
+            self.main.setCentralWidget(OdevWindow(self.main, self.pracici, self.stavby))
         elif stavba == "Přidat":
             self.add_build = AddWindow(self.main)
             self.add_build.show()

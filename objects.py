@@ -12,7 +12,11 @@ class Pracik:
         self.srazy["V"] = 0
         self.srazy["C"] = 0
         self.srazy["P"] = 0
-        
+        self.odevy = {}
+        self.odevy["T"] = ""
+        self.odevy["C"] = 0
+        self.odevy["P"] = 0
+
         for stavba in stavby:
             self.novaDochazka(stavba)
 
@@ -23,10 +27,16 @@ class Pracik:
         self.dochazky[stavba] = Dochazka(stavba, mesic, rok)
 
     def srazCelk(self):
-        print(str(self.srazy["V"] + self.srazy["C"] + self.srazy["P"]))
         return str(self.srazy["V"] + self.srazy["C"] + self.srazy["P"])
 
-
+    def hodinyCelk(self):
+        total = 0
+        for dochazka in self.dochazky.values():
+            total += sum(dochazka.dny)
+        print(total)
+        return str(total)
+    def odevyCelk(self):
+        return str(self.odevy["C"] * self.odevy["P"])
 
 class Dochazka:
     def __init__(self, stavba, mesic, rok):
