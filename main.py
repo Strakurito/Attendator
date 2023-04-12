@@ -140,14 +140,26 @@ class Window(QtWidgets.QMainWindow):
             self.pracTab.setItem(self.pracici.index(pracik), 5, QtWidgets.QTableWidgetItem(pracik.odevyCelk()))
             self.pracTab.item(self.pracici.index(pracik), 5).setTextAlignment(QtCore.Qt.AlignCenter)
 
-            self.pracTab.setItem(self.pracici.index(pracik), 10, QtWidgets.QTableWidgetItem())
-            self.pracTab.item(self.pracici.index(pracik), 10).setTextAlignment(QtCore.Qt.AlignCenter)
+            self.pracTab.setItem(self.pracici.index(pracik), 4, QtWidgets.QTableWidgetItem(pracik.zalohyCelk()))
+            self.pracTab.item(self.pracici.index(pracik), 4).setTextAlignment(QtCore.Qt.AlignCenter)
 
             self.pracTab.setItem(self.pracici.index(pracik), 3,
                                  QtWidgets.QTableWidgetItem(str(int(pracik.hodinyCelk()) *
                                                                 int(self.pracTab.item(self.pracici.index(pracik), 2).text()))))
             self.pracTab.item(self.pracici.index(pracik), 3).setTextAlignment(QtCore.Qt.AlignCenter)
 
+            self.pracTab.setItem(self.pracici.index(pracik), 8, QtWidgets.QTableWidgetItem(str(
+                                                                int(self.pracTab.item(self.pracici.index(pracik), 3).text()) -
+                                                                    (int(pracik.srazCelk()) +
+                                                                     int(pracik.odevyCelk()) +
+                                                                     int(pracik.zalohyCelk())) +
+                                                                int(self.pracTab.item(self.pracici.index(pracik), 7).text()))))
+            self.pracTab.item(self.pracici.index(pracik), 8).setTextAlignment(QtCore.Qt.AlignCenter)
+
+            self.pracTab.setItem(self.pracici.index(pracik), 10, QtWidgets.QTableWidgetItem(str(
+                int(self.pracTab.item(self.pracici.index(pracik), 8).text()) - int(
+                    self.pracTab.item(self.pracici.index(pracik), 9).text()))))
+            self.pracTab.item(self.pracici.index(pracik), 10).setTextAlignment(QtCore.Qt.AlignCenter)
 
         self.pracTab.setItem(len(self.pracici), 0, QtWidgets.QTableWidgetItem(""))
         self.pracTab.setItem(len(self.pracici), 2, QtWidgets.QTableWidgetItem(""))
@@ -199,9 +211,10 @@ class Window(QtWidgets.QMainWindow):
             else:
                 if self.pracTab.item(curRow, curCol).text() not in [pracik.jmeno for pracik in self.pracici]:
                     self.currentPracik.jmeno = self.pracTab.item(curRow, 0).text()
-                self.currentPracik.kchod = int(self.pracTab.item(curRow, 2).text())
-                self.currentPracik.premie = int(self.pracTab.item(curRow, 7).text())
-                self.currentPracik.platUct = int(self.pracTab.item(curRow, 9).text())
+                if self.pracTab.item(curRow, curCol).text().isnumeric():
+                    self.currentPracik.kchod = int(self.pracTab.item(curRow, 2).text())
+                    self.currentPracik.premie = int(self.pracTab.item(curRow, 7).text())
+                    self.currentPracik.platUct = int(self.pracTab.item(curRow, 9).text())
                 self.pracovnici_tabulka_load()
 
     def unpickle_data(self):
@@ -251,7 +264,7 @@ class BuildWindow(QtWidgets.QWidget):
         self.title.pressed.connect(lambda: self.change_build())
         self.title.setStyleSheet(
             "color: white; font-family: Montserrat SemiBold; font-size: 40px; text-decoration: underline; background: transparent; border: transparent")
-        self.stavTab = QtWidgets.QTableWidget(len(self.pracici), len(self.pracici[0].dochazky[stavba].dny) + 3)
+        self.stavTab = QtWidgets.QTableWidget(len(self.pracici), len(self.pracici[0].dochazky[stavba].dny) + 14)
         self.stavTab.verticalHeader().hide()
         self.stavTab.horizontalHeader().sectionPressed.disconnect()
 
@@ -289,11 +302,20 @@ class BuildWindow(QtWidgets.QWidget):
         Hheader = self.stavTab.horizontalHeader()
         Hheader.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
 
+        pocetDni = len(self.pracici[0].dochazky[stavba].dny)
+
         self.stavTab.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem("Jméno"))
         for i in range(len(self.pracici[0].dochazky[stavba].dny)):
             self.stavTab.setHorizontalHeaderItem(i + 1, QtWidgets.QTableWidgetItem(str(i + 1)))
-        self.stavTab.setHorizontalHeaderItem(len(self.pracici[0].dochazky[stavba].dny) + 1,
+        self.stavTab.setHorizontalHeaderItem(pocetDni + 1,
                                              QtWidgets.QTableWidgetItem("Celkem"))
+        self.stavTab.setHorizontalHeaderItem(pocetDni + 2,
+                                             QtWidgets.QTableWidgetItem("Jméno"))
+        for i in [pocetDni + 3, pocetDni + 5,pocetDni + 7 ,pocetDni + 9 ,pocetDni + 11]:
+            self.stavTab.setHorizontalHeaderItem(i, QtWidgets.QTableWidgetItem("  Záloha  "))
+        for i in [pocetDni + 4, pocetDni + 6,pocetDni + 8 ,pocetDni + 10 ,pocetDni + 12]:
+            self.stavTab.setHorizontalHeaderItem(i, QtWidgets.QTableWidgetItem("  Datum  "))
+        self.stavTab.setHorizontalHeaderItem(pocetDni + 13, QtWidgets.QTableWidgetItem("  Celkem  "))
         self.stavTab.setHorizontalHeaderItem(len(self.pracici[0].dochazky[stavba].dny) + 2,
                                              QtWidgets.QTableWidgetItem("Jméno"))
 
@@ -301,23 +323,27 @@ class BuildWindow(QtWidgets.QWidget):
         for pracik in self.pracici:
             self.stavTab.setItem(self.pracici.index(pracik), 0, QtWidgets.QTableWidgetItem(pracik.jmeno))
             self.stavTab.item(self.pracici.index(pracik), 0).setBackground(QtGui.QColor(224, 224, 224))
-            self.stavTab.setItem(self.pracici.index(pracik),
-                                 len(self.pracici[0].dochazky[stavba].dny) + 2, QtWidgets.QTableWidgetItem(pracik.jmeno))
-            self.stavTab.item(self.pracici.index(pracik),
-                              len(self.pracici[0].dochazky[stavba].dny) + 2).setBackground(QtGui.QColor(224, 224, 224))
+            self.stavTab.setItem(self.pracici.index(pracik),pocetDni + 2, QtWidgets.QTableWidgetItem(pracik.jmeno))
+            self.stavTab.item(self.pracici.index(pracik),pocetDni + 2).setBackground(QtGui.QColor(224, 224, 224))
             self.stavTab.setItemDelegate(ReadOnlyDelegate(self))
-            self.stavTab.setItem(self.pracici.index(pracik), len(self.pracici[0].dochazky[stavba].dny) + 1,
-                                 QtWidgets.QTableWidgetItem(str(sum((pracik.dochazky[self.curStavba].dny)))))
-            self.stavTab.item(self.pracici.index(pracik),
-                              len(self.pracici[0].dochazky[stavba].dny) + 1).setTextAlignment(QtCore.Qt.AlignCenter)
-            self.stavTab.item(self.pracici.index(pracik),
-                              len(self.pracici[0].dochazky[stavba].dny) + 1).setBackground(QtGui.QColor(50, 100, 255))
-            self.stavTab.item(self.pracici.index(pracik),
-                              len(self.pracici[0].dochazky[stavba].dny) + 1).setForeground(QtGui.QColor("white"))
+            self.stavTab.setItem(self.pracici.index(pracik), pocetDni + 1,QtWidgets.QTableWidgetItem(
+                str(sum((pracik.dochazky[self.curStavba].dny)))))
+            self.stavTab.item(self.pracici.index(pracik),pocetDni + 1).setTextAlignment(QtCore.Qt.AlignCenter)
+            self.stavTab.item(self.pracici.index(pracik),pocetDni + 1).setBackground(QtGui.QColor(50, 100, 255))
+            self.stavTab.item(self.pracici.index(pracik),pocetDni + 1).setForeground(QtGui.QColor("white"))
+
+            for i,j in zip([pocetDni + 3, pocetDni + 5, pocetDni + 7, pocetDni + 9, pocetDni + 11],[0,1,2,3,4]):
+                self.stavTab.setItem(self.pracici.index(pracik), i, QtWidgets.QTableWidgetItem(str(pracik.zalohy[j].castka)))
+            for i,j in zip([pocetDni + 4, pocetDni + 6, pocetDni + 8, pocetDni + 10, pocetDni + 12],[0,1,2,3,4]):
+                self.stavTab.setItem(self.pracici.index(pracik), i, QtWidgets.QTableWidgetItem(pracik.zalohy[j].datum))
 
             for i in range(len(self.pracici[0].dochazky[self.curStavba].dny)):
-                self.stavTab.setItem(self.pracici.index(pracik),
-                                     i + 1, QtWidgets.QTableWidgetItem(str(pracik.dochazky[self.curStavba].dny[i])))
+                if pracik.dochazky[self.curStavba].dny[i] == 0:
+                    self.stavTab.setItem(self.pracici.index(pracik),
+                                         i + 1, QtWidgets.QTableWidgetItem(""))
+                else:
+                    self.stavTab.setItem(self.pracici.index(pracik),
+                                         i + 1, QtWidgets.QTableWidgetItem(str(pracik.dochazky[self.curStavba].dny[i])))
                 if i in pracik.dochazky[self.curStavba].vikendy:
                     self.stavTab.item(self.pracici.index(pracik), i + 1).setBackground(QtGui.QColor(150,200,255))
 
@@ -354,7 +380,6 @@ class SrazWindow(QtWidgets.QWidget):
         self.srazTab = QtWidgets.QTableWidget(len(self.pracici), 5)
         self.srazTab.verticalHeader().hide()
         self.srazTab.horizontalHeader().sectionPressed.disconnect()
-        self.srazTab.itemChanged.connect(lambda: self.changeData(self.srazTab.currentRow(), self.srazTab.currentColumn()))
         self.load_tabulka()
 
         self.layout = QtWidgets.QVBoxLayout()
@@ -404,11 +429,13 @@ class SrazWindow(QtWidgets.QWidget):
             self.srazTab.item(self.pracici.index(pracik), 4).setTextAlignment(QtCore.Qt.AlignRight)
             self.srazTab.setItemDelegateForColumn(0,ReadOnlyDelegate(self))
             self.srazTab.setItemDelegateForColumn(4,ReadOnlyDelegate(self))
+        self.srazTab.itemChanged.connect(
+            lambda: self.changeData(self.srazTab.currentRow(), self.srazTab.currentColumn()))
 
     def changeData(self, curRow, curCol):
         self.srazTab.itemChanged.disconnect()
         pracik = self.pracici[curRow]
-        if curCol == 0:
+        if curCol == 0 or self.srazTab.item(curRow, curCol).text().isnumeric() is False:
             pass
         elif curCol == 1:
             pracik.srazy["V"] = int(self.srazTab.item(curRow, curCol).text())
@@ -510,11 +537,11 @@ class OdevWindow(QtWidgets.QWidget):
             pass
         elif curCol == 1:
             pracik.odevy["T"] = self.odevTab.item(curRow, curCol).text()
-        elif curCol == 2:
+        elif curCol == 2 and self.odevTab.item(curRow, curCol).text().isnumeric():
             pracik.odevy["C"] = int(self.odevTab.item(curRow, curCol).text())
-        elif curCol == 3:
+        elif curCol == 3 and self.odevTab.item(curRow, curCol).text().isnumeric():
             pracik.odevy["P"] = int(self.odevTab.item(curRow, curCol).text())
-        elif curCol == 4:
+        elif curCol == 4 and self.odevTab.item(curRow, curCol).text().isnumeric():
             pass
         self.load_tabulka()
         self.odevTab.itemChanged.connect(

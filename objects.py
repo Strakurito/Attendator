@@ -9,6 +9,7 @@ class Pracik:
         self.platUct = platUct
         self.dochazky = {}
         self.srazy = {}
+        self.zalohy = [Zaloha(),Zaloha(),Zaloha(),Zaloha(),Zaloha()]
         self.srazy["V"] = 0
         self.srazy["C"] = 0
         self.srazy["P"] = 0
@@ -38,6 +39,15 @@ class Pracik:
     def odevyCelk(self):
         return str(self.odevy["C"] * self.odevy["P"])
 
+    def zalohyCelk(self):
+        total = 0
+        for zaloha in self.zalohy:
+            if zaloha.castka == "":
+                total += 0
+            else:
+                total += int(zaloha.castka)
+        return str(total)
+
 class Dochazka:
     def __init__(self, stavba, mesic, rok):
         self.mesic= mesic
@@ -52,3 +62,11 @@ class Dochazka:
                     self.vikendy.append(den)
             elif calendar.weekday(rok, mesic, den + 1) == 6:
                     self.vikendy.append(den)
+class Zaloha:
+    def __init__(self):
+        self.castka = ""
+        self.datum = ""
+
+    def newZaloha(self,castka):
+        self.castka = castka
+        self.datum = datetime.today().strftime("%d.%m.%Y")
