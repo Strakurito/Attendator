@@ -15,5 +15,5 @@ with open(PIKP, "rb") as a:
 with open(PIKS, "rb") as a:
     stavby = pickle.load(a)
 
-excelator = Excelator()
+excelator = Excelator(pracici, stavby)
 
