@@ -3,7 +3,7 @@ import openpyxl
 
 
 class Excelator:
-    def __init__(pracici, stavby):
+    def __init__(self,pracici, stavby):
         print("blorb")
 
 
