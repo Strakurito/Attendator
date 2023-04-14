@@ -332,8 +332,10 @@ class BuildWindow(QtWidgets.QWidget):
             self.stavTab.item(self.pracici.index(pracik),pocetDni + 1).setBackground(QtGui.QColor(50, 100, 255))
             self.stavTab.item(self.pracici.index(pracik),pocetDni + 1).setForeground(QtGui.QColor("white"))
 
+#zalohy
             for i,j in zip([pocetDni + 3, pocetDni + 5, pocetDni + 7, pocetDni + 9, pocetDni + 11],[0,1,2,3,4]):
                 self.stavTab.setItem(self.pracici.index(pracik), i, QtWidgets.QTableWidgetItem(str(pracik.zalohy[j].castka)))
+#datum
             for i,j in zip([pocetDni + 4, pocetDni + 6, pocetDni + 8, pocetDni + 10, pocetDni + 12],[0,1,2,3,4]):
                 self.stavTab.setItem(self.pracici.index(pracik), i, QtWidgets.QTableWidgetItem(pracik.zalohy[j].datum))
 
