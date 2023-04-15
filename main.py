@@ -121,15 +121,15 @@ class Window(QtWidgets.QMainWindow):
 
             self.pracTab.setItem(self.pracici.index(pracik), 2, QtWidgets.QTableWidgetItem(str(pracik.kchod)))
             self.pracTab.item(self.pracici.index(pracik), 2).setTextAlignment(QtCore.Qt.AlignCenter)
-            self.pracTab.item(self.pracici.index(pracik), 2).setBackground(QtGui.QColor(224, 224, 224))
+            self.pracTab.item(self.pracici.index(pracik), 2).setBackground(QtGui.QColor(0, 255, 0))
 
             self.pracTab.setItem(self.pracici.index(pracik), 7, QtWidgets.QTableWidgetItem(str(pracik.premie)))
             self.pracTab.item(self.pracici.index(pracik), 7).setTextAlignment(QtCore.Qt.AlignCenter)
-            self.pracTab.item(self.pracici.index(pracik), 7).setBackground(QtGui.QColor(224, 224, 224))
+            self.pracTab.item(self.pracici.index(pracik), 7).setBackground(QtGui.QColor(0, 255, 0))
 
             self.pracTab.setItem(self.pracici.index(pracik), 9, QtWidgets.QTableWidgetItem(str(pracik.platUct)))
             self.pracTab.item(self.pracici.index(pracik), 9).setTextAlignment(QtCore.Qt.AlignCenter)
-            self.pracTab.item(self.pracici.index(pracik), 9).setBackground(QtGui.QColor(224, 224, 224))
+            self.pracTab.item(self.pracici.index(pracik), 9).setBackground(QtGui.QColor(0, 255, 0))
 
             self.pracTab.setItem(self.pracici.index(pracik), 6, QtWidgets.QTableWidgetItem(pracik.srazCelk()))
             self.pracTab.item(self.pracici.index(pracik), 6).setTextAlignment(QtCore.Qt.AlignCenter)
@@ -335,9 +335,12 @@ class BuildWindow(QtWidgets.QWidget):
 #zalohy
             for i,j in zip([pocetDni + 3, pocetDni + 5, pocetDni + 7, pocetDni + 9, pocetDni + 11],[0,1,2,3,4]):
                 self.stavTab.setItem(self.pracici.index(pracik), i, QtWidgets.QTableWidgetItem(str(pracik.zalohy[j].castka)))
+                self.stavTab.item(self.pracici.index(pracik), i).setBackground(QtGui.QColor(204, 229, 255))
+
 #datum
             for i,j in zip([pocetDni + 4, pocetDni + 6, pocetDni + 8, pocetDni + 10, pocetDni + 12],[0,1,2,3,4]):
                 self.stavTab.setItem(self.pracici.index(pracik), i, QtWidgets.QTableWidgetItem(pracik.zalohy[j].datum))
+
 
             for i in range(len(self.pracici[0].dochazky[self.curStavba].dny)):
                 if pracik.dochazky[self.curStavba].dny[i] == 0:
