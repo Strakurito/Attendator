@@ -121,15 +121,15 @@ class Window(QtWidgets.QMainWindow):
 
             self.pracTab.setItem(self.pracici.index(pracik), 2, QtWidgets.QTableWidgetItem(str(pracik.kchod)))
             self.pracTab.item(self.pracici.index(pracik), 2).setTextAlignment(QtCore.Qt.AlignCenter)
-            self.pracTab.item(self.pracici.index(pracik), 2).setBackground(QtGui.QColor(0, 255, 0))
+            self.pracTab.item(self.pracici.index(pracik), 2).setBackground(QtGui.QColor(204, 255, 204))
 
             self.pracTab.setItem(self.pracici.index(pracik), 7, QtWidgets.QTableWidgetItem(str(pracik.premie)))
             self.pracTab.item(self.pracici.index(pracik), 7).setTextAlignment(QtCore.Qt.AlignCenter)
-            self.pracTab.item(self.pracici.index(pracik), 7).setBackground(QtGui.QColor(0, 255, 0))
+            self.pracTab.item(self.pracici.index(pracik), 7).setBackground(QtGui.QColor(204, 255, 204))
 
             self.pracTab.setItem(self.pracici.index(pracik), 9, QtWidgets.QTableWidgetItem(str(pracik.platUct)))
             self.pracTab.item(self.pracici.index(pracik), 9).setTextAlignment(QtCore.Qt.AlignCenter)
-            self.pracTab.item(self.pracici.index(pracik), 9).setBackground(QtGui.QColor(0, 255, 0))
+            self.pracTab.item(self.pracici.index(pracik), 9).setBackground(QtGui.QColor(204, 255, 204))
 
             self.pracTab.setItem(self.pracici.index(pracik), 6, QtWidgets.QTableWidgetItem(pracik.srazCelk()))
             self.pracTab.item(self.pracici.index(pracik), 6).setTextAlignment(QtCore.Qt.AlignCenter)
@@ -432,6 +432,7 @@ class SrazWindow(QtWidgets.QWidget):
             self.srazTab.item(self.pracici.index(pracik), 3).setTextAlignment(QtCore.Qt.AlignRight)
             self.srazTab.setItem(self.pracici.index(pracik), 4, QtWidgets.QTableWidgetItem(pracik.srazCelk()))
             self.srazTab.item(self.pracici.index(pracik), 4).setTextAlignment(QtCore.Qt.AlignRight)
+            self.srazTab.item(self.pracici.index(pracik), 4).setBackground(QtGui.QColor(50, 100, 255))
             self.srazTab.setItemDelegateForColumn(0,ReadOnlyDelegate(self))
             self.srazTab.setItemDelegateForColumn(4,ReadOnlyDelegate(self))
         self.srazTab.itemChanged.connect(
@@ -532,6 +533,7 @@ class OdevWindow(QtWidgets.QWidget):
             self.odevTab.item(self.pracici.index(pracik), 3).setTextAlignment(QtCore.Qt.AlignRight)
             self.odevTab.setItem(self.pracici.index(pracik), 4, QtWidgets.QTableWidgetItem(pracik.odevyCelk()))
             self.odevTab.item(self.pracici.index(pracik), 4).setTextAlignment(QtCore.Qt.AlignRight)
+            self.odevTab.item(self.pracici.index(pracik), 4).setBackground(QtGui.QColor(50, 100, 255))
             self.odevTab.setItemDelegateForColumn(0, ReadOnlyDelegate(self))
             self.odevTab.setItemDelegateForColumn(4, ReadOnlyDelegate(self))
 
