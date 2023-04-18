@@ -331,6 +331,11 @@ class BuildWindow(QtWidgets.QWidget):
             self.stavTab.item(self.pracici.index(pracik),pocetDni + 1).setTextAlignment(QtCore.Qt.AlignCenter)
             self.stavTab.item(self.pracici.index(pracik),pocetDni + 1).setBackground(QtGui.QColor(50, 100, 255))
             self.stavTab.item(self.pracici.index(pracik),pocetDni + 1).setForeground(QtGui.QColor("white"))
+            self.stavTab.setItem(self.pracici.index(pracik), pocetDni + 13,
+                                 QtWidgets.QTableWidgetItem(pracik.zalohyCelk()))
+            self.stavTab.item(self.pracici.index(pracik), pocetDni + 13).setBackground(QtGui.QColor(50, 100, 255))
+            self.stavTab.item(self.pracici.index(pracik), pocetDni + 13).setForeground(QtGui.QColor("white"))
+            self.stavTab.item(self.pracici.index(pracik), pocetDni + 13).setTextAlignment(QtCore.Qt.AlignCenter)
 
 #zalohy
             for i,j in zip([pocetDni + 3, pocetDni + 5, pocetDni + 7, pocetDni + 9, pocetDni + 11],[0,1,2,3,4]):
@@ -350,7 +355,8 @@ class BuildWindow(QtWidgets.QWidget):
                     self.stavTab.setItem(self.pracici.index(pracik),
                                          i + 1, QtWidgets.QTableWidgetItem(str(pracik.dochazky[self.curStavba].dny[i])))
                 if i in pracik.dochazky[self.curStavba].vikendy:
-                    self.stavTab.item(self.pracici.index(pracik), i + 1).setBackground(QtGui.QColor(150,200,255))
+                    self.stavTab.item(self.pracici.index(pracik), i).setBackground(QtGui.QColor(150,200,255))
+
 
     def load_stavba(self, stavba):
         if stavba == "Pracovníci":
@@ -433,6 +439,8 @@ class SrazWindow(QtWidgets.QWidget):
             self.srazTab.setItem(self.pracici.index(pracik), 4, QtWidgets.QTableWidgetItem(pracik.srazCelk()))
             self.srazTab.item(self.pracici.index(pracik), 4).setTextAlignment(QtCore.Qt.AlignRight)
             self.srazTab.item(self.pracici.index(pracik), 4).setBackground(QtGui.QColor(50, 100, 255))
+            self.srazTab.item(self.pracici.index(pracik), 4).setForeground("white")
+
             self.srazTab.setItemDelegateForColumn(0,ReadOnlyDelegate(self))
             self.srazTab.setItemDelegateForColumn(4,ReadOnlyDelegate(self))
         self.srazTab.itemChanged.connect(
@@ -534,6 +542,7 @@ class OdevWindow(QtWidgets.QWidget):
             self.odevTab.setItem(self.pracici.index(pracik), 4, QtWidgets.QTableWidgetItem(pracik.odevyCelk()))
             self.odevTab.item(self.pracici.index(pracik), 4).setTextAlignment(QtCore.Qt.AlignRight)
             self.odevTab.item(self.pracici.index(pracik), 4).setBackground(QtGui.QColor(50, 100, 255))
+            self.srazTab.item(self.pracici.index(pracik), 4).setForeground("white")
             self.odevTab.setItemDelegateForColumn(0, ReadOnlyDelegate(self))
             self.odevTab.setItemDelegateForColumn(4, ReadOnlyDelegate(self))
 
