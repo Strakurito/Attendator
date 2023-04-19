@@ -339,13 +339,17 @@ class BuildWindow(QtWidgets.QWidget):
 
 #zalohy
             for i,j in zip([pocetDni + 3, pocetDni + 5, pocetDni + 7, pocetDni + 9, pocetDni + 11],[0,1,2,3,4]):
-                self.stavTab.setItem(self.pracici.index(pracik), i, QtWidgets.QTableWidgetItem(str(pracik.zalohy[j].castka)))
+                if pracik.zalohy[j].castka == 0:
+                    self.stavTab.setItem(self.pracici.index(pracik), i,
+                                         QtWidgets.QTableWidgetItem(" "))
+                else:
+                    self.stavTab.setItem(self.pracici.index(pracik), i,
+                                         QtWidgets.QTableWidgetItem(str(pracik.zalohy[j].castka)))
                 self.stavTab.item(self.pracici.index(pracik), i).setBackground(QtGui.QColor(204, 229, 255))
 
 #datum
             for i,j in zip([pocetDni + 4, pocetDni + 6, pocetDni + 8, pocetDni + 10, pocetDni + 12],[0,1,2,3,4]):
                 self.stavTab.setItem(self.pracici.index(pracik), i, QtWidgets.QTableWidgetItem(pracik.zalohy[j].datum))
-
 
             for i in range(len(self.pracici[0].dochazky[self.curStavba].dny)):
                 if pracik.dochazky[self.curStavba].dny[i] == 0:
@@ -355,7 +359,7 @@ class BuildWindow(QtWidgets.QWidget):
                     self.stavTab.setItem(self.pracici.index(pracik),
                                          i + 1, QtWidgets.QTableWidgetItem(str(pracik.dochazky[self.curStavba].dny[i])))
                 if i in pracik.dochazky[self.curStavba].vikendy:
-                    self.stavTab.item(self.pracici.index(pracik), i).setBackground(QtGui.QColor(150,200,255))
+                    self.stavTab.item(self.pracici.index(pracik), i+1).setBackground(QtGui.QColor(150,200,255))
 
 
     def load_stavba(self, stavba):
@@ -439,7 +443,7 @@ class SrazWindow(QtWidgets.QWidget):
             self.srazTab.setItem(self.pracici.index(pracik), 4, QtWidgets.QTableWidgetItem(pracik.srazCelk()))
             self.srazTab.item(self.pracici.index(pracik), 4).setTextAlignment(QtCore.Qt.AlignRight)
             self.srazTab.item(self.pracici.index(pracik), 4).setBackground(QtGui.QColor(50, 100, 255))
-            self.srazTab.item(self.pracici.index(pracik), 4).setForeground("white")
+            self.srazTab.item(self.pracici.index(pracik), 4).setForeground(QtGui.QColor("white"))
 
             self.srazTab.setItemDelegateForColumn(0,ReadOnlyDelegate(self))
             self.srazTab.setItemDelegateForColumn(4,ReadOnlyDelegate(self))
@@ -542,7 +546,7 @@ class OdevWindow(QtWidgets.QWidget):
             self.odevTab.setItem(self.pracici.index(pracik), 4, QtWidgets.QTableWidgetItem(pracik.odevyCelk()))
             self.odevTab.item(self.pracici.index(pracik), 4).setTextAlignment(QtCore.Qt.AlignRight)
             self.odevTab.item(self.pracici.index(pracik), 4).setBackground(QtGui.QColor(50, 100, 255))
-            self.srazTab.item(self.pracici.index(pracik), 4).setForeground("white")
+            self.odevTab.item(self.pracici.index(pracik), 4).setForeground(QtGui.QColor("white"))
             self.odevTab.setItemDelegateForColumn(0, ReadOnlyDelegate(self))
             self.odevTab.setItemDelegateForColumn(4, ReadOnlyDelegate(self))
 
@@ -689,23 +693,24 @@ class ChangeWindow(QtWidgets.QWidget):
         passL = QtWidgets.QLabel("Heslo")
         passB = QtWidgets.QLineEdit(self.main.hesla[stavba])
 
-        butt = QtWidgets.QPushButton("Změnit")
+        self.butt = QtWidgets.QPushButton("Změnit")
 
-        delete = QtWidgets.QPushButton("Smazat")
+        self.delete = QtWidgets.QPushButton("Smazat")
 
         self.layout.addWidget(nameL)
         self.layout.addWidget(nameB)
         self.layout.addWidget(passL)
         self.layout.addWidget(passB)
         self.layout.addSpacing(20)
-        self.layout.addWidget(butt)
+        self.layout.addWidget(self.butt)
         self.layout.addSpacing(20)
-        self.layout.addWidget(delete)
+        self.layout.addWidget(self.delete)
 
-        butt.pressed.connect(lambda: self.changeBuild(nameB.text(), passB.text()))
-        delete.pressed.connect(lambda: self.deleteBuild())
+        self.butt.pressed.connect(lambda: self.changeBuild(nameB.text(), passB.text()))
+        self.delete.pressed.connect(lambda: self.deleteBuild())
 
     def changeBuild(self, name, heslo):
+        self.butt.pressed.disconnect()
         self.main.stavby.remove(self.stavba)
         self.main.hesla[name] = heslo
         for pracik in self.main.pracici:
@@ -718,6 +723,7 @@ class ChangeWindow(QtWidgets.QWidget):
         self.close()
 
     def deleteBuild(self):
+        self.delete.pressed.disconnect()
         self.main.stavby.remove(self.stavba)
         del self.main.hesla[self.stavba]
         del self.stavba
